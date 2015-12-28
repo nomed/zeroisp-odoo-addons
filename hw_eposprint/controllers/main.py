@@ -108,8 +108,13 @@ class EpsonOBJ(object):
         line['dept'] = 1
         line['price'] = str(line['price']).replace('.',',')    
         line['quantity'] = str(line['quantity']).replace('.',',')    
-        return """<printRecItem operator="%(op)s" description="%(product_name)s" quantity="%(quantity)s" unitPrice="%(price)s" department="%(dept)s" justification="2" />"""%(line)
- 
+        ret = """<printRecItem operator="%(op)s" description="%(product_name)s" quantity="%(quantity)s" unitPrice="%(price)s" department="%(dept)s" justification="2" />"""%(line)
+        
+        if line['discount'] > 0:
+            ret += """<printRecMessage operator="1" messageType="4" message="Scontato del %(discount)s " />"""%(line)
+        
+        return ret
+        
     def _printRecTotal(self, line, op='1', paymentType=0, index=0):
         line['op'] = op
         """<printRecTotal operator="1" 
@@ -245,6 +250,8 @@ class EpsonOBJ(object):
             txt += self._printRecItem(line)
         for line in receipt['paymentlines']:
             txt += self._printRecTotal(line)
+        if receipt['total_discount']:
+            txt += """<printRecMessage operator="1" message="Hai Risparmiato %s" messageType="2" index="2" font="4" />"""%str(receipt['total_discount']).replace('.',',')
         import pprint
         _logger.info(pprint.pformat(receipt))
         self.printerFiscalReceipt(txt) 
