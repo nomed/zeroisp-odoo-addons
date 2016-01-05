@@ -12,6 +12,7 @@ import random
 import math
 import md5
 import openerp.addons.hw_proxy.controllers.main as hw_proxy
+
 import pickle
 import re
 import subprocess
@@ -74,6 +75,7 @@ class EpsonOBJ(object):
         <queryPrinterStatus operator="1" />
         </printerCommand>
         """
+
         return self._get(SM_TEMPLATE%msg)
         
     def printXReport(self):
@@ -151,6 +153,7 @@ class EpsonOBJ(object):
         return self._get(SM_TEMPLATE%msg)  
 
     def print_status(self,eprint):
+        #_logger.info(request.env)
         localips = ['0.0.0.0','127.0.0.1','127.0.1.1']
         hosting_ap = os.system('pgrep hostapd') == 0
         ssid = subprocess.check_output('iwconfig 2>&1 | grep \'ESSID:"\' | sed \'s/.*"\\(.*\\)"/\\1/\'', shell=True).rstrip()
@@ -181,7 +184,10 @@ class EpsonOBJ(object):
         
         txt += self._printNormal('\n\n')
         txt += self._printNormal('Fiscal Printer: %s'%(self.ip))
-        self.printerNonFiscal(txt)        
+        try:
+            self.printerNonFiscal(txt)        
+        except:
+            pass
 
 
     def print_receipt_body(self,receipt):
@@ -271,10 +277,18 @@ class EposPrint(Thread):
         self.queue.put((time.time(),task,data))
         
     def lockedstart(self):
-        with self.lock:            
-            if not self.isAlive():                
-                self.daemon = True
-                self.start()
+        _logger.info(dir(request))
+        _logger.info("==== START LOCK") 
+        with self.lock: 
+            _logger.info("==== %s"%(self.isAlive()))
+            _logger.info("==== %s"%(self.daemon))
+            if not self.isAlive():   
+                if not self.daemon:
+                     self.daemon = True
+                try:
+                    self.start()
+                except:
+                    pass
 
     def set_status(self, status, message = None):
         if status == self.status['status']:
@@ -298,7 +312,9 @@ class EposPrint(Thread):
 
     def get_device(self):
         devobj = EpsonOBJ(IP)
+        
         _logger.info(devobj.status())
+
         device_status = devobj.status()
         if device_status['@success'] == 'true':
             device_cpu = device_status['addInfo']['cpuRel']
@@ -347,20 +363,20 @@ class EposPrint(Thread):
 eposprint_thread = EposPrint()
 hw_proxy.drivers['eposprint'] = eposprint_thread        
 
-eposprint_thread.push_task('printstatus')
+#eposprint_thread.push_task('printstatus')
 
 class EposPrintDriver(hw_proxy.Proxy):
             
     @http.route('/hw_proxy/print_receipt', type='json', auth='none', cors='*')
-    def print_receipt(self, receipt):
+    def print_receipt(self, receipt, **kw):
         _logger.info('Epson Print: PRINT RECEIPT') 
         eposprint_thread.push_task('receipt',receipt)
 
     @http.route('/hw_proxy/print_xml_receipt', type='json', auth='none', cors='*')
-    def print_xml_receipt(self, receipt):
+    def print_xml_receipt(self, receipt, **kw):
         _logger.info('Epson Print: PRINT XML RECEIPT') 
         eposprint_thread.push_task('xml_receipt',receipt)        
 
     @http.route('/hw_proxy/print_pdf_invoice', type='json', auth='none', cors='*')
-    def print_pdf_invoice(self, pdfinvoice):
+    def print_pdf_invoice(self, pdfinvoice, **kw):
         eposprint_thread.push_task('invoice',pdfinvoice)        

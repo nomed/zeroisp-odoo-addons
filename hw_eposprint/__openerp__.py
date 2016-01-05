@@ -5,16 +5,20 @@
 {
     'name': 'fiscal ePOS-Print XML Proxy',
     'version': '1.0',
-    'category': 'Hardware Drivers',
+    'category': 'Point of Sale',
     'sequence': 6,
     'website': 'https://www.odoo.com/page/point-of-sale',
     'summary': 'Hardware Driver for fiscal ePOS-Print XML',
     'description': """
+
 Hardware Driver for fiscal ePOS-Print
 ========================================
 
+This module contains drivers to connect Odoo and ePos-Print compatible fiscal printer according to Italian laws.
+
+
 """,
-    'depends': ['hw_proxy'],
+    'depends': ['hw_proxy',  'point_of_sale'],
     'author': 'Daniele Favara @ Zeroisp',
     'website': 'http://www.zeroisp.com',    
     #'external_dependencies': {
@@ -22,7 +26,7 @@ Hardware Driver for fiscal ePOS-Print
     #},
     'test': [
     ],
-    'data': ['views/hw_eposprint.xml'],
+    'data': ['views/hw_eposprint.xml', 'security/ir.model.access.csv',],
     
     'installable': True,
     'auto_install': False,
