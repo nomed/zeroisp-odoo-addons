@@ -20,7 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends':  ['web', 'barcodes', 'point_of_sale'],
 
     # always loaded
     'data': [
