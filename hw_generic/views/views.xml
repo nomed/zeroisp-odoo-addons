@@ -1,60 +1,98 @@
+<?xml version="1.0"?>
 <odoo>
-  <data>
-    <!-- explicit list view definition -->
-    <!--
-    <record model="ir.ui.view" id="hw_generic.list">
-      <field name="name">hw_generic list</field>
-      <field name="model">hw_generic.hw_generic</field>
-      <field name="arch" type="xml">
-        <tree>
-          <field name="name"/>
-          <field name="value"/>
-          <field name="value2"/>
-        </tree>
-      </field>
-    </record>
-    -->
+    <data>
+        <record id="view_hw_generic_configuration_form" model="ir.ui.view" >
+            <field name="name">generic Configurations</field>
+            <field name="model">hw_generic.configuration</field>
+            <field name="arch" type="xml">
+                <form string="Card Reader">
+                    <sheet>
+                        <div class="oe_title">
+                           <label for="name" class="oe_edit_only"/>
+                           <h1><field name="name"/></h1>
+                        </div>
+                        <div>
+                            <p>
+                                <i>generic Configurations</i> define what generic account will be used when
+                                processing credit card transactions in the Point Of Sale. Setting up a generic
+                                configuration will enable you to allow payments with various credit cards
+                                (eg. Visa, MasterCard, Discovery, American Express, ...). After setting up this
+                                configuration you should associate it with a Point Of Sale payment method.
+                            </p><p>
+                                We currently support the MagTek Dynamag card reader device. It can be connected
+                                directly to the Point Of Sale device or it can be connected to the POSBox.
+                            </p><p>
+                                Using the generic integration in the Point Of Sale is easy: just press the
+                                associated payment method. After that the amount can be adjusted (eg. for cashback)
+                                just like on any other payment line. Whenever the payment line is set up, a card
+                                can be swiped through the card reader device.
+                            </p><p>
+                                For quickly handling orders: just swiping a credit card when on the payment screen
+                                (without having pressed anything else) will charge the full amount of the order to
+                                the card.
+                            </p><p>
+                                If you don't already have a generic account, contact generic at +1 (800) 846-4472
+                                to create one.
+                            </p>
+                        </div>
+                        <group col="2">
+                            <field name="merchant_id"/>
+                            <field name="merchant_pwd"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- actions opening views on models -->
-    <!--
-    <record model="ir.actions.act_window" id="hw_generic.action_window">
-      <field name="name">hw_generic window</field>
-      <field name="res_model">hw_generic.hw_generic</field>
-      <field name="view_mode">tree,form</field>
-    </record>
-    -->
+        <record id="view_hw_generic_configuration_tree" model="ir.ui.view">
+            <field name="name">generic Configurations</field>
+            <field name="model">hw_generic.configuration</field>
+            <field name="arch" type="xml">
+                <tree string="Card Reader">
+                    <field name="name"/>
+                    <field name="merchant_id"/>
+                </tree>
+            </field>
+        </record>
 
-    <!-- server action to the one above -->
-    <!--
-    <record model="ir.actions.server" id="hw_generic.action_server">
-      <field name="name">hw_generic server</field>
-      <field name="model_id" ref="model_hw_generic_hw_generic"/>
-      <field name="state">code</field>
-      <field name="code">
-        action = {
-          "type": "ir.actions.act_window",
-          "view_mode": "tree,form",
-          "res_model": self._name,
-        }
-      </field>
-    </record>
-    -->
+        <record id="action_configuration_form" model="ir.actions.act_window">
+            <field name="name">generic Configurations</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hw_generic.configuration</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to configure your card reader.
+              </p>
+            </field>
+        </record>
 
-    <!-- Top menu item -->
-    <!--
-    <menuitem name="hw_generic" id="hw_generic.menu_root"/>
-    -->
-    <!-- menu categories -->
-    <!--
-    <menuitem name="Menu 1" id="hw_generic.menu_1" parent="hw_generic.menu_root"/>
-    <menuitem name="Menu 2" id="hw_generic.menu_2" parent="hw_generic.menu_root"/>
-    -->
-    <!-- actions -->
-    <!--
-    <menuitem name="List" id="hw_generic.menu_1_list" parent="hw_generic.menu_1"
-              action="hw_generic.action_window"/>
-    <menuitem name="Server to list" id="hw_generic" parent="hw_generic.menu_2"
-              action="hw_generic.action_server"/>
-    -->
-  </data>
+        <record id="view_account_journal_pos_user_form" model="ir.ui.view">
+            <field name="name">POS Journal</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="point_of_sale.view_account_journal_pos_user_form"></field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_authorized_diff']" position="after">
+                    <field name="hw_generic_config_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_pos_order" model="ir.ui.view">
+          <field name="name">POS orders</field>
+          <field name="model">pos.order</field>
+          <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+          <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount']" position="before">
+              <field name="generic_prefixed_card_number"/>
+              <field name="generic_card_brand"/>
+              <field name="generic_card_owner_name"/>
+            </xpath>
+          </field>
+        </record>
+
+        <menuitem parent="point_of_sale.menu_point_config_product" action="hw_generic.action_configuration_form" id="menu_pos_hw_generic_config"
+            sequence="35"/>
+    </data>
 </odoo>
