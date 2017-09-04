@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <sheet position='inside'>
                     <group string="HW Generic" >
-                        <field name="printer_ids" />
+                        <field name="hw_generic_printer_ids" />
                     </group>
                 </sheet>
             </field>

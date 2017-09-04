@@ -31,7 +31,7 @@ class HwGenericConfig(models.Model):
     #iface_printbill = fields.Boolean(string='Bill Printing', help='Allows to print the Bill before payment')
     #iface_orderline_notes = fields.Boolean(string='Orderline Notes', help='Allow custom notes on Orderlines')
     #floor_ids = fields.One2many('restaurant.floor', 'pos_config_id', string='Restaurant Floors', help='The restaurant floors served by this point of sale')
-    printer_ids = fields.Many2many('hw_generic.printer', 'pos_config_printer_rel', 'config_id', 'printer_id', string='Generic Printers')
+    hw_generic_printer_ids = fields.Many2many('hw_generic.printer', 'pos_config_printer_rel', 'config_id', 'printer_id', string='Generic Printers')
 
 class HwGenericPrinter(models.Model):
     
